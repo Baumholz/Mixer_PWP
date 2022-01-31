@@ -20,37 +20,11 @@ import gc
 gc.collect()
 
 import ure
-
-#network credentials
-ssid = 'scony'
-password = 'ghemy37748FIZZ'
-
-#connect esp to wifi
-station = network.WLAN(network.STA_IF)
-station.active(True)
-station.connect(ssid, password)
-
-while station.isconnected() == False:
-  pass
-
-print('Connection successful')
-print(station.ifconfig())
-
-led = Pin(5, Pin.OUT)
-
-#this file in main.py
+import uasyncio as asyncio
+from micropython_switchbot import run_ble
 
 #function to create the webpage
 def web_page(length):
-  #depending on if the led is on or off change the html page
-  if led.value() == 1:
-    gpio_state="ON"
-  else:
-    gpio_state="OFF"
-    
-  #what the page looks like
-  #important is
-  #buttons have a href to the different urls /?led=on or /?led=off since this is what triggers the led to turn on or off in the while loop
   html = """<html><head><title>Dispenser AP Mode</title> <meta name="viewport" content="width=device-width, initial-scale=1">
   <link rel="icon" href="data:,"> <style>html{font-family: Helvetica; display:inline-block; margin: 0px auto; text-align: center;}
   h1{color: #0F3376; padding: 2vh;}p{font-size: 1.5rem;}
@@ -74,29 +48,38 @@ s.bind(('', 80))
 #accept a maximum of 5 connections
 s.listen(5)
 
-length = 0
-while True:
-  #accept an incoming connection
-  conn, addr = s.accept()
-  print('Got a connection from %s' % str(addr))
-  #save the request to a string (contains the url and user data)
-  request = conn.recv(1024)
-  request = str(request)
-  print('Content = %s' % request)
-  request = str(request)
-  length = ure.search(r"/?length=(.*?) HTTP", request)
-  if length != None:
-      length = length.group(1)
-  print(length)
-  #bluetooth command senden
+def ap_mode(callback):
+    print("in ap mode")
+    length = 0
+    while True:
+      print("on")
+      #accept an incoming connection
+      conn, addr = s.accept()
+      print('Got a connection from %s' % str(addr))
+      #save the request to a string (contains the url and user data)
+      request = conn.recv(1024)
+      request = str(request)
+      print('Content = %s' % request)
+      request = str(request)
+      length = ure.search(r"/?length=(.*?) HTTP", request)
+      if length != None:
+          length = length.group(1)
+          press = b'\x57\x01\x00'
+          on = b'\x57\x01\x01'
+          off = b'\x57\x01\x02'
+          asyncio.run(run_ble(on,int(length)*1000, callback))
+      print(length)
+      #bluetooth command senden
 
-  #show the user the web page html (defined in the def web_page() function) and close the connection to the client 
-  response = web_page(length)
-  #send http codes to the client
-  conn.send('HTTP/1.1 200 OK\n')
-  conn.send('Content-Type: text/html\n')
-  conn.send('Connection: close\n\n')
-  #send the webpage to the client
-  conn.sendall(response)
-  #close the connection
-  conn.close()
+      #show the user the web page html (defined in the def web_page() function) and close the connection to the client 
+      response = web_page(length)
+      #send http codes to the client
+      conn.send('HTTP/1.1 200 OK\n')
+      conn.send('Content-Type: text/html\n')
+      conn.send('Connection: close\n\n')
+      #send the webpage to the client
+      conn.sendall(response)
+      #close the connection
+      conn.close()
+    
+

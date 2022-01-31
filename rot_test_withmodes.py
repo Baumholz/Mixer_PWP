@@ -3,32 +3,34 @@ import math
 from rotary_irq_esp import RotaryIRQ
 import wot_client.api as apiX
 import sys
-import uasyncio as asyncio
-from ble import turnon_ble
-sys.path.reverse()
+from dispense_apmode import ap_mode
+from micropython_switchbot import run_on_api
 
+sys.path.reverse()
+apiX.init()
 class Action:
     def __init__(self, mode):
-        self.mode = mode
+        self.set_mode(mode)
+        
+    def set_mode(self, new_mode):
+        self.mode = new_mode
+        print("mode: ", self.mode)
+        apiX.set_access_mode(new_mode) 
 
     def run_dispenser(self, duration):
-        if self.mode == 0:
-            #do nothing
-            pass
-        elif self.mode == 1:
+        if self.mode == 1:
             #create ap and control
-            pass
+            ap_mode(apiX.publish_event)
         elif self.mode == 2:
             #create ap and control
-            pass
+            ap_mode(apiX.publish_event)
         elif self.mode == 3:
             #internet
-            #bluetooth function aufrufen
-            #time.sleep(duration)
-            #bluetooth function aufrufen
-            pass
-
-a = Action(3)
+            print("in 3")
+            run_on_api(duration, apiX.publish_event)
+        
+default_mode = 2
+a = Action(default_mode)
 
 def init():
     r = RotaryIRQ(pin_num_clk=13, 
@@ -41,16 +43,13 @@ def init():
     val_old = math.floor(r.value()/5)
     return r, val_old
 
-apiX.init()
-apiX.set_access_mode(3)
+
+apiX.set_access_mode(default_mode)
 def example_on_action_handler(topic, msg):
     print('I am the example on_action_handler!', topic, msg)
-    #msg = duration
-    #a.run_dispenser(msg)
-    press = b'\x57\x01\x00'
-    on = b'\x57\x01\x01'
-    off = b'\x57\x01\x02'
-    asyncio.run(turnon_ble(1,on,msg*1000))
+    # set msg to duration not mode!!! 
+    a.set_mode(int(msg))
+    a.run_dispenser(2)
 
 apiX.set_on_action_handler(example_on_action_handler)
 
@@ -58,17 +57,11 @@ print("done with set on")
 print("done with first part")
 
 def rotary_send():
-    r, val_old = init()
     while True:
         print("ready to publish event")
-        val_new = math.floor(r.value()/5)
-        
-        if val_old != val_new:
-            val_old = val_new
-            print('result =', val_new)
-            apiX.publish_event("mode","test"+str(val_new))
-            apiX.set_access_mode(val_new)
-            #TODO: add the code to switch the mode and run the different functions
+        apiX.publish_event("mode","test")
+        a.run_dispenser(duration=1)
         time.sleep_ms(5000)
 rotary_send()
+
 

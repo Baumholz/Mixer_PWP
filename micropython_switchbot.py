@@ -42,12 +42,9 @@ press = b'\x57\x01\x00'
 on = b'\x57\x01\x01'
 off = b'\x57\x01\x02'
 
-async def main(d, command, timeout):
+async def run_ble(command, timeout, callback):
     #later switch the mac adress to the ones we are using!
-    if d == 1:
-        device = aioble.Device(1, "e4:6e:35:6b:62:e3")
-    else:
-        device = aioble.Device(1, "e4:6e:35:6b:62:e3")
+    device = aioble.Device(1, "e4:6e:35:6b:62:e3")
 
     try:
         async with await device.connect(timeout_ms=10000) as connection:
@@ -59,13 +56,34 @@ async def main(d, command, timeout):
             characteristic_capture = await service.characteristic(CHAR_CAPTURE_UUID)
             print("characteristic", characteristic.uuid, characteristic_capture.uuid)
             await characteristic.write(command, timeout_ms=10000)
+            callback("mode","on")
             await asyncio.sleep_ms(timeout)
             print("turning on for "+str(timeout)+" milliseconds!")
             await characteristic.write(command, timeout_ms=10000)
+            callback("mode","off")
             print("finished dispence!")
 
     except asyncio.TimeoutError:
         print('Timeout')
+        
+def run_on_api(timeout, callback):
+    import urequests
+    import time
+    authToken = '6a80dc7e7efeb93ade60f8bbac144c32760c6f93ffcc22c589bfe2697f0bfda2703bd2b03d466f28c3e9473b43937896'
+    deviceID1='E46E356B62E3'
+    headers={"Authorization":authToken, "Connection":"close"}
+    body = """{"command":"turnOn"}"""
+    response = urequests.post("https://api.switch-bot.com/v1.0/devices/" + deviceID1 + "/commands", data=body, headers=headers)
+    response = response.json()
+    if response["statusCode"] == 100:
+        print("Dispensor is on")
+        callback("mode","on")
+    time.sleep(timeout)
+    body = """{"command":"turnOn"}"""
+    response = urequests.post("https://api.switch-bot.com/v1.0/devices/" + deviceID1 + "/commands", data=body, headers=headers)
+    response = response.json()
+    if response["statusCode"] == 100:
+        print("Dispensor is off")
+        callback("mode","off")
 
-
-asyncio.run(main(on,5000))
+#asyncio.run(run_ble(on,5000))
