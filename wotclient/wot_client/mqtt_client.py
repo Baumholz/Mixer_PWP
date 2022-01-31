@@ -1,6 +1,6 @@
 from wot_client.settings_manager import global_settings
 from wot_client.wifi_manager import get_device_id
-from umqtt.robust2 import MQTTClient
+from lib.umqtt.robust2 import MQTTClient
 
 from machine import Timer
 
