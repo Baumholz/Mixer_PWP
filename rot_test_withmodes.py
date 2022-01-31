@@ -27,14 +27,14 @@ class Action:
         elif self.mode == 3:
             #internet
             print("in 3")
-            run_on_api(duration, apiX.publish_event)
+            #run_on_api(duration, apiX.publish_event)
         
-default_mode = 2
+default_mode = 3
 a = Action(default_mode)
 
 def init():
-    r = RotaryIRQ(pin_num_clk=13, 
-                  pin_num_dt=12, 
+    r = RotaryIRQ(pin_num_clk=27, 
+                  pin_num_dt=26, 
                   min_val=0, 
                   max_val=19, 
                   reverse=False, 
@@ -48,20 +48,33 @@ apiX.set_access_mode(default_mode)
 def example_on_action_handler(topic, msg):
     print('I am the example on_action_handler!', topic, msg)
     # set msg to duration not mode!!! 
-    a.set_mode(int(msg))
-    a.run_dispenser(2)
+    run_on_api(int(msg), apiX.publish_event)
 
 apiX.set_on_action_handler(example_on_action_handler)
 
 print("done with set on")
 print("done with first part")
 
+    
 def rotary_send():
+    r, val_old = init()
     while True:
         print("ready to publish event")
-        apiX.publish_event("mode","test")
-        a.run_dispenser(duration=1)
+        val_new = math.floor(r.value()/5)
+        
+        if val_old != val_new:
+            val_old = val_new
+            print('result =', val_new)
+            apiX.publish_event("mode",str(val_new))
+            a.set_mode(val_new)
+            print(val_new)
+            print(val_old)
+            if val_old == 1 or val_old==2:
+                print("going into the ap mode")
+                ap_mode(apiX.publish_event)
+            #TODO: add the code to switch the mode and run the different functions
         time.sleep_ms(5000)
 rotary_send()
+
 
 
