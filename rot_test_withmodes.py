@@ -5,9 +5,12 @@ import wot_client.api as apiX
 import sys
 from dispense_apmode import ap_mode
 from micropython_switchbot import run_on_api
+from light import init_lights
 
 sys.path.reverse()
 apiX.init()
+init_lights()
+
 class Action:
     def __init__(self, mode):
         self.set_mode(mode)
