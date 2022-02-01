@@ -15,25 +15,6 @@ import uasyncio as asyncio
 import aioble
 import bluetooth
 
-import random
-import struct
-
-_FILE_SERVICE_UUID = bluetooth.UUID(0x1234)
-_CONTROL_CHARACTERISTIC_UUID = bluetooth.UUID(0x1235)
-
-
-_COMMAND_SEND = const(0)
-_COMMAND_RECV = const(1)  # Not yet implemented.
-_COMMAND_LIST = const(2)
-_COMMAND_SIZE = const(3)
-_COMMAND_DONE = const(4)
-
-_STATUS_OK = const(0)
-_STATUS_NOT_IMPLEMENTED = const(1)
-_STATUS_NOT_FOUND = const(2)
-
-_L2CAP_PSN = const(22)
-_L2CAP_MTU = const(128)
 SERVICE_UUID = bluetooth.UUID("cba20d00-224d-11e6-9fb8-0002a5d5c51b")
 CHAR_UUID = bluetooth.UUID("cba20002-224d-11e6-9fb8-0002a5d5c51b")
 CHAR_CAPTURE_UUID = bluetooth.UUID("cba20003-224d-11e6-9fb8-0002a5d5c51b")
@@ -41,6 +22,17 @@ CHAR_CAPTURE_UUID = bluetooth.UUID("cba20003-224d-11e6-9fb8-0002a5d5c51b")
 press = b'\x57\x01\x00'
 on = b'\x57\x01\x01'
 off = b'\x57\x01\x02'
+
+import tsl2591
+n = 12
+p = 25 
+tsl = tsl2591.Tsl2591("test")
+
+def get_light():
+    full, ir = tsl.get_full_luminosity()  # read raw values (full spectrum and ir spectrum)
+    lux = tsl.calculate_lux(full, ir)  # convert raw values to lux
+    print (lux, full, ir)
+    return lux
 
 async def run_ble(command, timeout, callback):
     #later switch the mac adress to the ones we are using!
@@ -56,11 +48,11 @@ async def run_ble(command, timeout, callback):
             characteristic_capture = await service.characteristic(CHAR_CAPTURE_UUID)
             print("characteristic", characteristic.uuid, characteristic_capture.uuid)
             await characteristic.write(command, timeout_ms=10000)
-            callback("mode","on")
+            callback("status",1)
             await asyncio.sleep_ms(timeout)
             print("turning on for "+str(timeout)+" milliseconds!")
             await characteristic.write(command, timeout_ms=10000)
-            callback("mode","off")
+            callback("status",0)
             print("finished dispence!")
 
     except asyncio.TimeoutError:
@@ -77,13 +69,22 @@ def run_on_api(timeout, callback):
     response = response.json()
     if response["statusCode"] == 100:
         print("Dispensor is on")
-        callback("mode","on")
+        callback("status",1)
     time.sleep(timeout)
     body = """{"command":"turnOn"}"""
     response = urequests.post("https://api.switch-bot.com/v1.0/devices/" + deviceID1 + "/commands", data=body, headers=headers)
     response = response.json()
     if response["statusCode"] == 100:
         print("Dispensor is off")
-        callback("mode","off")
+        callback("status",0)
+    lightvalue = get_light()
+    if lightvalue > 10:
+        print("Device is empty")
+        callback("level","False")
+        callback("emptyingredient","True")
+    else:
+        print("Device still has things in it")
+        callback("level","True")
 
 #asyncio.run(run_ble(on,5000))
+

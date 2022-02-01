@@ -23,6 +23,7 @@ import ure
 import uasyncio as asyncio
 from micropython_switchbot import run_ble
 
+        
 #function to create the webpage
 def web_page(length):
   html = """<html><head><title>Dispenser AP Mode</title> <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -48,15 +49,15 @@ s.bind(('', 80))
 #accept a maximum of 5 connections
 s.listen(5)
 
-def ap_mode(callback):
+def ap_mode(callback,r):
     print("in ap mode")
     length = 0
     while True:
+      if r():
+          return
       print("on")
-      #accept an incoming connection
       conn, addr = s.accept()
       print('Got a connection from %s' % str(addr))
-      #save the request to a string (contains the url and user data)
       request = conn.recv(1024)
       request = str(request)
       print('Content = %s' % request)
@@ -67,19 +68,16 @@ def ap_mode(callback):
           press = b'\x57\x01\x00'
           on = b'\x57\x01\x01'
           off = b'\x57\x01\x02'
-          asyncio.run(run_ble(on,int(length)*1000, callback))
-      print(length)
-      #bluetooth command senden
-
-      #show the user the web page html (defined in the def web_page() function) and close the connection to the client 
+          try:
+              asyncio.run(run_ble(on,int(length)*1000, callback))
+          except:
+              print("no number, try again")
       response = web_page(length)
-      #send http codes to the client
       conn.send('HTTP/1.1 200 OK\n')
       conn.send('Content-Type: text/html\n')
       conn.send('Connection: close\n\n')
-      #send the webpage to the client
       conn.sendall(response)
-      #close the connection
       conn.close()
     
+
 
