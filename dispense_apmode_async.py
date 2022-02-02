@@ -66,7 +66,7 @@ async def ap_mode(callback):
             length = length.group(1)
             on = b'\x57\x01\x01'
             try:
-                asyncio.run(run_ble(on,int(length)*1000, callback))
+                asyncio.run(run_ble(on,float(length)*1000, callback))
             except:
                 print("no number, try again")
           response = web_page(length)

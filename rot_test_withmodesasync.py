@@ -51,8 +51,8 @@ def rotated():
     if val_old != val_new:
         val_old = val_new
         print('result =', val_new)
-        apiX.publish_event("mode","test"+str(val_new))
         a.set_mode(val_new)
+        apiX.publish_event("access_mode", str(val_new))
         return True
     return False
 

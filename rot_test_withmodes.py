@@ -36,7 +36,7 @@ def init():
 
 
 def example_on_action_handler(topic, msg):
-    run_on_api(int(msg), apiX.publish_event)
+    run_on_api(float(msg), apiX.publish_event)
 
 apiX.set_on_action_handler(example_on_action_handler)
 
@@ -50,8 +50,8 @@ def rotated():
     if val_old != val_new:
         val_old = val_new
         print('result =', val_new)
-        apiX.publish_event("mode","test"+str(val_new))
         a.set_mode(val_new)
+        apiX.publish_event("access_mode", str(val_new))
     return val_new
     
 def rotary_send():

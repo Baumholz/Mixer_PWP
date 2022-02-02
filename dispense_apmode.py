@@ -71,7 +71,7 @@ def ap_mode(callback,r):
               on = b'\x57\x01\x01'
               off = b'\x57\x01\x02'
               try:
-                  asyncio.run(run_ble(on,int(length)*1000, callback))
+                  asyncio.run(run_ble(on,float(length)*1000, callback))
               except:
                   print("no number, try again")
           response = web_page(length)
@@ -82,7 +82,7 @@ def ap_mode(callback,r):
           conn.close()
       except OSError:
           rvalue = r()
-          if rvalue == 1 or rvalue == 2:
+          if rvalue != 1 or rvalue != 2:
             return
           time.sleep(1)
         

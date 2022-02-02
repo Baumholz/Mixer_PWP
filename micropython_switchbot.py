@@ -48,11 +48,11 @@ async def run_ble(command, timeout, callback):
             characteristic_capture = await service.characteristic(CHAR_CAPTURE_UUID)
             print("characteristic", characteristic.uuid, characteristic_capture.uuid)
             await characteristic.write(command, timeout_ms=10000)
-            callback("status",1)
-            await asyncio.sleep_ms(timeout)
+            callback("status", True)
+            await asyncio.sleep_ms(int(timeout))
             print("turning on for "+str(timeout)+" milliseconds!")
             await characteristic.write(command, timeout_ms=10000)
-            callback("status",0)
+            callback("status", False)
             print("finished dispence!")
 
     except asyncio.TimeoutError:
@@ -69,14 +69,14 @@ def run_on_api(timeout, callback):
     response = response.json()
     if response["statusCode"] == 100:
         print("Dispensor is on")
-        callback("status",1)
+        callback("status", True)
     time.sleep(timeout)
     body = """{"command":"turnOn"}"""
     response = urequests.post("https://api.switch-bot.com/v1.0/devices/" + deviceID1 + "/commands", data=body, headers=headers)
     response = response.json()
     if response["statusCode"] == 100:
         print("Dispensor is off")
-        callback("status",0)
+        callback("status", False)
     lightvalue = get_light()
     if lightvalue > 10:
         print("Device is empty")
