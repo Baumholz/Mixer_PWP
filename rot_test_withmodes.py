@@ -20,7 +20,7 @@ class Action:
         print("mode: ", self.mode)
         apiX.set_access_mode(new_mode) 
         
-default_mode = 3
+default_mode = 0
 a = Action(default_mode)
 
 def init():
@@ -44,6 +44,7 @@ r, val_old = init()
 
 val_old = r.value()
 def rotated():
+    print(a.mode)
     global val_old
     val_new = math.floor(r.value()/5) 
     if val_old != val_new:
@@ -51,8 +52,7 @@ def rotated():
         print('result =', val_new)
         apiX.publish_event("mode","test"+str(val_new))
         a.set_mode(val_new)
-        return True
-    return False
+    return val_new
     
 def rotary_send():
     while True:

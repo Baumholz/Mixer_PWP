@@ -22,6 +22,7 @@ gc.collect()
 import ure
 import uasyncio as asyncio
 from micropython_switchbot import run_ble
+import time
 
         
 #function to create the webpage
@@ -48,36 +49,42 @@ s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 s.bind(('', 80))
 #accept a maximum of 5 connections
 s.listen(5)
+s.setblocking(False)
 
 def ap_mode(callback,r):
     print("in ap mode")
     length = 0
     while True:
-      if r():
-          return
-      print("on")
-      conn, addr = s.accept()
-      print('Got a connection from %s' % str(addr))
-      request = conn.recv(1024)
-      request = str(request)
-      print('Content = %s' % request)
-      request = str(request)
-      length = ure.search(r"/?length=(.*?) HTTP", request)
-      if length != None:
-          length = length.group(1)
-          press = b'\x57\x01\x00'
-          on = b'\x57\x01\x01'
-          off = b'\x57\x01\x02'
-          try:
-              asyncio.run(run_ble(on,int(length)*1000, callback))
-          except:
-              print("no number, try again")
-      response = web_page(length)
-      conn.send('HTTP/1.1 200 OK\n')
-      conn.send('Content-Type: text/html\n')
-      conn.send('Connection: close\n\n')
-      conn.sendall(response)
-      conn.close()
-    
+      try:
+              
+          print("on")
+          conn, addr = s.accept()
+          print('Got a connection from %s' % str(addr))
+          request = conn.recv(1024)
+          request = str(request)
+          print('Content = %s' % request)
+          request = str(request)
+          length = ure.search(r"/?length=(.*?) HTTP", request)
+          if length != None:
+              length = length.group(1)
+              press = b'\x57\x01\x00'
+              on = b'\x57\x01\x01'
+              off = b'\x57\x01\x02'
+              try:
+                  asyncio.run(run_ble(on,int(length)*1000, callback))
+              except:
+                  print("no number, try again")
+          response = web_page(length)
+          conn.send('HTTP/1.1 200 OK\n')
+          conn.send('Content-Type: text/html\n')
+          conn.send('Connection: close\n\n')
+          conn.sendall(response)
+          conn.close()
+      except OSError:
+          rvalue = r()
+          if rvalue == 1 or rvalue == 2:
+            return
+          time.sleep(1)
+        
 
 

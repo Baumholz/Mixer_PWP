@@ -58,7 +58,8 @@ def rotated():
 
 async def check_modes(task):
     """Kill ap mode if value changed"""
-    if rotated():
+    print(a.mode)
+    if rotated() and task:
         task.cancel()  
     await asyncio.sleep_ms(1_000)
 
