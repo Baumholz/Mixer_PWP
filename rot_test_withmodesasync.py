@@ -3,7 +3,7 @@ import math
 from rotary_irq_esp import RotaryIRQ
 import wot_client.api as apiX
 import sys
-from dispense_apmode import ap_mode
+from dispense_apmode_async import ap_mode
 from micropython_switchbot import run_on_api
 from light import init_lights
 import uasyncio as asyncio
@@ -21,7 +21,7 @@ class Action:
         print("mode: ", self.mode)
         apiX.set_access_mode(new_mode) 
         
-default_mode = 3
+default_mode = 0
 a = Action(default_mode)
 
 def init():
@@ -81,6 +81,7 @@ def rotary_send():
 
 
 rotary_send()
+
 
 
 
