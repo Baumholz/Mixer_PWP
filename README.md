@@ -11,6 +11,7 @@ To use the dispenser you need:
 - ESP32 (flashed with micropython)
 - Switchbot
 - Rotary Switch
+- 3d Printed Parts [STL Files](dispenser/dispenser_stls)
 
 ### Structure
 ![image](structure.png)
