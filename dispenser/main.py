@@ -76,7 +76,7 @@ async def main():
 def rotary_send():
     while True:
         print("ready to publish event")
-        r.add_listener(rotated) # necessary?
+        r.add_listener(rotated) 
         asyncio.run(main())
         time.sleep_ms(5000) 
 
