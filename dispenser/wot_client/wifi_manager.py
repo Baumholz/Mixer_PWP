@@ -11,9 +11,13 @@ WIFI_AP = network.WLAN(network.AP_IF)
 
 
 def get_device_id():
-    """Get the unique ID of the device (MAC Address)"""
-    mac_address = ubinascii.hexlify(WIFI_STA.config('mac'),':').decode()
-    return mac_address.replace(':', '_')
+    #"""Get the unique ID of the device (MAC Address)"""
+    #mac_address = ubinascii.hexlify(WIFI_STA.config('mac'),':').decode()
+    #return mac_address.replace(':', '_')
+    
+    device_id = global_settings.data['hub_mqtt_broker']['device_id']
+    print(device_id)
+    return device_id
 
 
 def connect_stationary_wifi(ssid=None, password=None) -> bool:

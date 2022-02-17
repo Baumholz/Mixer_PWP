@@ -1,7 +1,9 @@
+import json
 import time
 
 from wot_client.settings_manager import global_settings
 import wot_client.mqtt_client as mqtt_client
+import wot_client.td_manager as td_manager
 import wot_client.wifi_manager as wifi_manager
 
 
@@ -45,12 +47,14 @@ def set_access_mode(mode: int, save_mode: bool = True):
         wifi_manager.connect_stationary_wifi()
         mqtt_client.connect_to_broker()
         announce_access_mode(mode)
+        publish_thing_description()
     elif mode == MODE_HUB_INTERNET:
         wifi_manager.disable_ap_wifi()
         # assuming the correct hub credentials are set in the global settings
         wifi_manager.connect_stationary_wifi()
         mqtt_client.connect_to_broker()
         announce_access_mode(mode)
+        publish_thing_description()
     else:
         raise Exception('Invalid access mode!')
 
@@ -70,3 +74,8 @@ def announce_access_mode(mode: int):
     status = mode_status_mapping[mode]
 
     mqtt_client.publish('properties/access_mode', status, retain=True)
+
+
+def publish_thing_description():
+    td = td_manager.get_thing_description_str()
+    mqtt_client.publish('thing_description', td, retain=True)

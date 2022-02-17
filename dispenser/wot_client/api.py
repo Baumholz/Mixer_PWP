@@ -1,5 +1,6 @@
 import wot_client.access_mode as access_mode
 import wot_client.mqtt_client as mqtt_client
+import wot_client.td_manager as td_manager
 import wot_client.wifi_manager as wifi_manager
 
 from wot_client.settings_manager import global_settings
@@ -11,8 +12,19 @@ MODE_HUB_LOCAL = access_mode.MODE_HUB_LOCAL  # local access via hub
 MODE_HUB_INTERNET = access_mode.MODE_HUB_INTERNET  # internet access via hub
 
 
-def init():
-    """Restore previously used access mode."""
+def init(td_path: str = None):
+    """API Initalization: restore previous access mode and prepare Thing Description.
+    
+    Args:
+        td_path: Path to the thing description (on the device). If not specified, the file is
+            assumed to be available at `/thing-description.json`.
+    """
+    # prepare thing description
+    td_path = td_path if td_path is not None else '/thing-description.json'
+    td_manager.set_td_path(td_path)
+    td_manager.parse_and_prepare_thing_description()
+
+    # restore access mode
     previous_access_mode = global_settings.data['access_mode']
     access_mode.set_access_mode(previous_access_mode)
     print('Activated access mode: {}'.format(previous_access_mode))
