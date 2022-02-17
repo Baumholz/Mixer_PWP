@@ -1,6 +1,6 @@
 # PWPHardwareMonkeys
 
-This project consists of two WoT devices. The files for the esp32 can be found in the mixer / dispenser.
+This project consists of two WoT devices. The files for the esp32 can be found in the mixer / dispenser folders.
 
 ##  Dispenser
 
