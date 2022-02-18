@@ -14,7 +14,7 @@ To use the dispenser you need:
 - 3d Printed Parts [STL Files](dispenser/dispenser_stls)
 
 ### Structure
-![image](structure.png)
+![image](structure_dispenser.png)
 
 ### Components / Interfaces
 The dispenser has 3 main features
@@ -32,3 +32,31 @@ The dispenser has 3 main features
 5. Follow instructions of the selected security mode
 
 ## Mixer
+
+### Requirements
+
+To use the dispenser you need:
+
+- ESP32 (flashed with micropython)
+- LEDs
+- Rotary Switch
+- Mixer
+- Cables
+- Resistors
+
+### Structure
+![image](structure_mixer.png)
+
+### Components / Interfaces
+The Mixer has 2 main features
+
+1. [MQTT interface](mixer/wot_client/api.py) maintained by the modes & communication group 
+2. [Rotary encoder](mixer/rotary_irq_esp.py) for switching the four security states
+
+### Setup
+
+1. Flash esp with micropython
+2. Copy files on root directory of the esp
+3. Configure Wifi credentials in [settings.json](mixer/wot_client/settings.json)
+4. Run [main.py](mixer/main.py) on esp
+5. Follow instructions of the selected security mode
