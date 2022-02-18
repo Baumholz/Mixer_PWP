@@ -69,7 +69,7 @@ The Mixer has 2 main features
 
 1. [MQTT interface](mixer/wot_client/api.py) maintained by the modes & communication group 
 2. [Rotary encoder](mixer/rotary_irq_esp.py) for switching the four security states
-2. [Switchbot interface](mixer/main.py) which can be accessed via API
+2. [MixerInterface interface](mixer/main.py) which can be accessed via API
 
 ### Setup
 
