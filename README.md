@@ -8,8 +8,8 @@ This project consists of two WoT devices. The files for the esp32 can be found i
 
 To use the dispenser you need:
 
-- ESP32 (flashed with micropython)
-- ESP01s (flashed with arduino)
+- ESP32 (flashed with micropython -> main logic)
+- ESP01s (flashed with arduino -> handles button and servo motor logic)
 - Switchbot
 - Rotary Switch
 - Keyboard Switch (Kailh box jade or similar)
@@ -37,7 +37,7 @@ The dispenser has 3 main features
 1. Print and assemble dispenser 
 2. Flash esp32 with micropython and wire components to the esp32 (GND and 3.3V/5V can be daisy chained between components)
     1. Connect rotary encoder (clk/s1 = gpio27, dt/s2 = gpio26)
-    2. Connect Light sensor to scl and sda (predefined as 5 and 4, but can be changeed inside of the tsl2591 python module in line 55)
+    2. Connect Light sensor to scl and sda (predefined as 5 and 4, but can be changed inside of the tsl2591 python module in line 55)
     3. Optionally: Connect LED Strip to gpio25
 3. Copy files on root directory of the esp
 4. Configure Wifi credentials in [settings.json](dispenser/wot_client/settings.json)
